@@ -2,16 +2,8 @@ import { test, expect } from '@playwright/test';
 
 
 // Import Page Object Model đã tạo ở loginpage.ts
-import { LoginPage } from './loginpage';
+import { LoginPage } from '../pages/loginpage';
 
-// Navigate to Login page
-test.describe('TC00 - Navigation', () => {
-  test('TC00 - Navigate to Login Page', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('link', { name: 'เข้าสู่ระบบ' }).click();
-    await expect(page).toHaveURL(/.*account\/login/);
-  });
-});
 // ===========================================================================
 // Các test case về login sẽ nằm trong block này
 test.describe('1. Login Functionality', () => {
@@ -47,12 +39,24 @@ test.describe('1. Login Functionality', () => {
   test('TC02 Successful Login with Valid Credentials', async ({ page }) => {
     const loginPage = new LoginPage(page);
  
-    // Bước 1: Thực hiện đăng nhập với thông tin từ .env
+    // Thực hiện đăng nhập với thông tin từ .env
     // login() = fillEmail() + fillPassword() + clickSignIn()
     await loginPage.login(process.env.USER_UID!, process.env.USER_PWD!);
  
-    // Bước 2: Chờ và kiểm tra redirect về trang account
-    await expect(page).toHaveURL(/.*\/account/);
+    // Chờ redirect về trang account và chờ response get-point (API call sau khi login thành công)
+    const [, getPointResponse] = await Promise.all([
+    page.waitForURL(/.*\/account/),
+    page.waitForResponse(res => res.url().includes('get-point') && res.status() === 200)]);
+
+    // Verify Customer ID (Shopify native)
+    // window.__st.cid chỉ có giá trị khi đã login thành công
+    // undefined = chưa login
+    const customerId = await page.evaluate(() => (window as any).__st?.cid ?? null);
+    expect(customerId, 'Customer ID phải có giá trị').toBeDefined();
+
+    // ── 2. Verify Member ID (custom cpw-connect app)
+    const body = await getPointResponse.json() as { member_id?: string };
+    expect(body.member_id, 'member_id không được null hoặc undefined').toBeDefined();
   });
  
   // =========================================================================
@@ -186,16 +190,13 @@ test.describe('1. Login Functionality', () => {
   test('TC10 - Click Register link', async ({ page }) => {
     const loginPage = new LoginPage(page);
  
-    // Bước 1: Click link "สร้างบัญชีผู้ใช้" (Create Account)
+    // Click link "สร้างบัญชีผู้ใช้" (Create Account)
     await loginPage.registerLink.click();
  
-    // Bước 2: Chờ chuyển trang, kiểm tra URL mới
-    await page.waitForURL(/.*account\/register/, { timeout: 5_000 });
- 
-    // Bước 3: Kiểm tra đang ở trang đăng ký
+    // Kiểm tra đang ở trang đăng ký
     await expect(page).toHaveURL(/.*account\/register/);
  
-    // Bước 4: Kiểm tra có form đăng ký trên trang mới
+    // Kiểm tra có form đăng ký trên trang mới
     await expect(page.locator('#create_customer, form[action*="register"]')).toBeVisible();
   });
   

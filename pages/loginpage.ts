@@ -6,6 +6,7 @@
 import { Page, Locator, expect } from '@playwright/test';
  
 export class LoginPage {
+  // các thuộc tính:
   // ── Tham chiếu đến page object của Playwright ─────────────
   // Page là "trình duyệt ảo" - đại diện cho 1 tab trình duyệt
   readonly page: Page;
