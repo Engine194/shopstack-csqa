@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 
 // Import Page Object Model đã tạo ở loginpage.ts
-import { LoginPage } from '../pages/loginpage';
+  import { LoginPage } from '../../src/pages/loginpage';
 
 // ===========================================================================
 // Các test case về login sẽ nằm trong block này
