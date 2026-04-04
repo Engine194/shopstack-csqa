@@ -6,8 +6,9 @@
 // POM - PAGE OBJECT MODEL -> Chuan POM 
 
 import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from './basePage';
  
-export class LoginPage {
+export class LoginPage extends BasePage {
   // ── Tham chiếu đến page object của Playwright ─────────────
   // Page là "trình duyệt ảo" - đại diện cho 1 tab trình duyệt
   readonly page: Page;
@@ -39,6 +40,7 @@ export class LoginPage {
   // ── CONSTRUCTOR ───────────────────────────────────────────
   // Nhận page từ test, khởi tạo tất cả locator
   constructor(page: Page) {
+    super(page);
     this.page = page;
  
     // page.locator(selector) = tạo locator nhưng CHƯA tìm element ngay

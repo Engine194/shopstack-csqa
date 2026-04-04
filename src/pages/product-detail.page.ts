@@ -5,9 +5,10 @@
 
 // POM - PAGE OBJECT MODEL -> Chuan POM
 
-import { Page, Locator, expect } from "@playwright/test";
+import { Page, Locator } from "@playwright/test";
+import { BasePage } from "./basePage";
 
-export class ProductDetailPage {
+export class ProductDetailPage extends BasePage {
   // ── Tham chiếu đến page object của Playwright ─────────────
   // Page là "trình duyệt ảo" - đại diện cho 1 tab trình duyệt
   readonly page: Page;
@@ -21,17 +22,18 @@ export class ProductDetailPage {
   // ── CONSTRUCTOR ───────────────────────────────────────────
   // Nhận page từ test, khởi tạo tất cả locator
   constructor(page: Page) {
+    super(page);
     this.page = page;
   }
 
   // ── NAVIGATION ────────────────────────────────────────────
 
-  /**
-   * Điều hướng tới trang login.
-   * page.goto() = mở URL, mặc định chờ đến khi trang load xong (networkidle)
-   */
-  async navigate(url: string) {
-    await this.page.goto(url);
+  async waitForReady() {
+    await this.page.waitForURL("**/products/*");
+  }
+
+  getUrl() {
+    return this.page.url();
   }
 
   // ── ACTIONS ───────────────────────────────────────────────

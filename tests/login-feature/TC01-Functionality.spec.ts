@@ -1,5 +1,5 @@
 import test, { expect } from "@playwright/test";
-import { LoginPage } from "../pages/loginpage";
+import { LoginPage } from "../../src/pages/loginpage";
 import { ENV } from "../../config_env";
 
 test.describe('1. Login Functionality', () => {
